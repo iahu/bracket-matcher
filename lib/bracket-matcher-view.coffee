@@ -129,7 +129,10 @@ class BracketMatcherView
     endPairPosition = null
     unpairedCount = 0
     @editor.scanInBufferRange pairRegexes[startPair], scanRange, (result) ->
-      switch result.match[0]
+      match = result.match;
+      if match.input[ match.index-1 ] is '\\'
+        return
+      switch match[0]
         when startPair
           unpairedCount++
         when endPair
@@ -145,7 +148,10 @@ class BracketMatcherView
     startPairPosition = null
     unpairedCount = 0
     @editor.backwardsScanInBufferRange pairRegexes[startPair], scanRange, (result) ->
-      switch result.match[0]
+      match = result.match;
+      if match.input[match.index-1] is '\\'
+        return
+      switch match[0]
         when startPair
           unpairedCount--
           if unpairedCount < 0
@@ -165,9 +171,12 @@ class BracketMatcherView
     startPosition = null
     unpairedCount = 0
     @editor.backwardsScanInBufferRange combinedRegExp, scanRange, (result) ->
-      if result.match[0].match(endPairRegExp)
+      match = result.match;
+      if match.input[match.index-1] is '\\'
+        return
+      if match[0].match(endPairRegExp)
         unpairedCount++
-      else if result.match[0].match(startPairRegExp)
+      else if match[0].match(startPairRegExp)
         unpairedCount--
         if unpairedCount < 0
           startPosition = result.range.start
